@@ -16,12 +16,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("public"));
 
-var databaseUri = 'mongodb://localhost/ScrapeDB';
-
 if (process.env.MONGODB_URI) {
   mongoose.connect(process.env.MongoDB_URI)
 } else {
-  mongoose.connect(databaseUri);
+  mongoose.connect('mongodb://localhost/ScrapeDB');
 }
 
 var db = mongoose.connection;
