@@ -16,13 +16,28 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("public"));
 
-mongoose.connect("mongodb://localhost/ScrapeDB", { useNewUrlParser: true });
+var databaseURL = 'mongodb://localhost/ScrapeDB';
+
+if (process.env.MONGODB_URI) {
+  mongoose.connect(process.env.MongoDB_URI)
+} else {
+  mongoose.connect("mongodb://localhost/ScrapeDB", { useNewUrlParser: true });
+}
+
+var db = mongoose.connection;
+db.on('error',function(err) {
+  console.log('Mongoose Error: ', err);
+});
+
+db.once('open', function() {
+  console.log('mongoose connection successful.');
+});
 
 app.get("/scrape", function(req, res) {
   axios.get("http://www.echojs.com/").then(function(response) {
     var $ = cheerio.load(response.data);
 
-    $("article h2").each(function(i, element) {
+    $("article span").each(function(i, element) {
       var result = {};
 
       result.title = $(this)
