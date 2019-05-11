@@ -7,7 +7,7 @@ var cheerio = require("cheerio");
 
 var db = require("./models");
 
-var PORT = 3001;
+var PORT = process.env.PORT || 3001;
 
 var app = express();
 
@@ -25,6 +25,7 @@ if (process.env.MONGODB_URI) {
 }
 
 var db = mongoose.connection;
+
 db.on('error',function(err) {
   console.log('Mongoose Error: ', err);
 });
