@@ -59,6 +59,8 @@ app.get("/scrape", function(req, res) {
 });
 
 app.get("/articles", function(req, res) {
+  console.log(db);
+  console.log(db.Article)
   db.Article.find({})
     .then(function(dbArticle) {
       res.json(dbArticle);
