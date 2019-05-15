@@ -7,7 +7,7 @@ var cheerio = require("cheerio");
 
 var db = require("./models");
 
-var PORT = 3000;
+var PORT = process.env.PORT || 3000;
 
 var app = express();
 
@@ -18,9 +18,22 @@ app.use(express.json());
 
 app.use(express.static("public"));
 
+var databaseUri ='mongodb://localhost/unit18Populater';
 
-mongoose.connect("mongodb://localhost/unit18Populater", { useNewUrlParser: true });
+if (process.env.MONGODB_URI) {
+  mongoose.connect(proess.env.MONGODB_URI);
+} else {
+  mongoose.connect(databaseUri);
+}
 
+var database = mongoose.connection;
+database.on('error', function(err) {
+  console.log('Mongoose Error: ', err);
+});
+
+database.once('open', function() {
+  console.log('Mongoose connection successful.');
+});
 
 app.get("/scrape", function(req, res) {
 
