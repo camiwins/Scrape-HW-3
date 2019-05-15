@@ -7,36 +7,27 @@ var cheerio = require("cheerio");
 
 var db = require("./models");
 
-var PORT = process.env.PORT || 3001;
+var PORT = 3000;
 
 var app = express();
 
 app.use(logger("dev"));
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
 app.use(express.static("public"));
 
-if (process.env.MONGODB_URI) {
-  mongoose.connect(process.env.MONGODB_URI)
-} else {
-  mongoose.connect('mongodb://localhost/ScrapeDB');
-}
 
-var db = mongoose.connection;
+mongoose.connect("mongodb://localhost/unit18Populater", { useNewUrlParser: true });
 
-db.on('error',function(err) {
-  console.log('Mongoose Error: ', err);
-});
-
-db.once('open', function() {
-  console.log('mongoose connection successful.');
-});
 
 app.get("/scrape", function(req, res) {
+
   axios.get("http://www.echojs.com/").then(function(response) {
     var $ = cheerio.load(response.data);
 
-    $("article span").each(function(i, element) {
+    $("article h2").each(function(i, element) {
       var result = {};
 
       result.title = $(this)
@@ -45,6 +36,7 @@ app.get("/scrape", function(req, res) {
       result.link = $(this)
         .children("a")
         .attr("href");
+
       db.Article.create(result)
         .then(function(dbArticle) {
           console.log(dbArticle);
@@ -59,8 +51,6 @@ app.get("/scrape", function(req, res) {
 });
 
 app.get("/articles", function(req, res) {
-  console.log(db);
-  console.log(db.Article)
   db.Article.find({})
     .then(function(dbArticle) {
       res.json(dbArticle);
@@ -94,6 +84,7 @@ app.post("/articles/:id", function(req, res) {
     });
 });
 
+// Start the server
 app.listen(PORT, function() {
   console.log("App running on port " + PORT + "!");
 });
